@@ -82,12 +82,18 @@ namespace NVorbis
                 Vector128<int> index,
                 byte scale)
             {
-                Unsafe.SkipInit(out Vector128<float> result);
-                result = result.WithElement(0, baseAddress[(long) index.GetElement(0) * scale]);
-                result = result.WithElement(1, baseAddress[(long) index.GetElement(1) * scale]);
-                result = result.WithElement(2, baseAddress[(long) index.GetElement(2) * scale]);
-                result = result.WithElement(3, baseAddress[(long) index.GetElement(3) * scale]);
-                return result;
+                return Vector128.Create(
+                    *ByteOffset(baseAddress, (nuint)index.GetElement(0) * scale),
+                    *ByteOffset(baseAddress, (nuint)index.GetElement(1) * scale),
+                    *ByteOffset(baseAddress, (nuint)index.GetElement(2) * scale),
+                    *ByteOffset(baseAddress, (nuint)index.GetElement(3) * scale)
+                );
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static T* ByteOffset<T>(T* baseAddress, nuint byteOffset) where T : unmanaged
+            {
+                return (T*)((byte*)baseAddress + byteOffset);
             }
         }
     }
